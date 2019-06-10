@@ -7,7 +7,7 @@ public class GitlabRouter: FederatedServiceRouter {
     public let tokens: FederatedServiceTokens
     public let callbackCompletion: (Request, String)throws -> (Future<ResponseEncodable>)
     public var scope: [String] = []
-    public let callbackURL: String
+    public var callbackURL: String
     public let accessTokenURL: String = "\(GitlabRouter.baseURL.finished(with: "/"))oauth/token"
     
     public func authURL(_ request: Request) throws -> String {

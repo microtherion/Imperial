@@ -4,7 +4,7 @@ public class ShopifyRouter: FederatedServiceRouter {
     public let tokens: FederatedServiceTokens
     public let callbackCompletion: (Request, String) throws -> (Future<ResponseEncodable>)
     public var scope: [String] = []
-    public let callbackURL: String
+    public var callbackURL: String
     public var accessTokenURL: String = ""
     
     required public init(callback: String, completion: @escaping (Request, String) throws -> (Future<ResponseEncodable>)) throws {
@@ -20,6 +20,7 @@ public class ShopifyRouter: FederatedServiceRouter {
         try request.session().setNonce(nonce)
         
         accessTokenURL = try accessTokenURLFrom(shop)
+        upgradeRelativeCallbackURL(from: request)
         return try authURLFrom(shop, nonce: nonce).absoluteString
     }
     

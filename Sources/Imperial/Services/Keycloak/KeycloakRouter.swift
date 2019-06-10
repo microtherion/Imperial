@@ -6,7 +6,7 @@ public class KeycloakRouter: FederatedServiceRouter {
     public let keycloakTokens: KeycloakAuth
     public let callbackCompletion: (Request, String)throws -> (Future<ResponseEncodable>)
     public var scope: [String] = []
-    public let callbackURL: String
+    public var callbackURL: String
     public let accessTokenURL: String
     
     public required init(callback: String, completion: @escaping (Request, String)throws -> (Future<ResponseEncodable>)) throws {
@@ -18,6 +18,7 @@ public class KeycloakRouter: FederatedServiceRouter {
     }
 
     public func authURL(_ request: Request) throws -> String {
+        upgradeRelativeCallbackURL(from: request)
         return "\(keycloakTokens.authURL)/auth?" +
             "client_id=\(self.tokens.clientID)&" +
             "redirect_uri=\(self.callbackURL)&" +

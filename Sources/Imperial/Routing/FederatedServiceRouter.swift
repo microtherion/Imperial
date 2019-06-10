@@ -3,7 +3,7 @@ import Vapor
 
 /// Defines a type that implements the routing to get an access token from an OAuth provider.
 /// See implementations in the `Services/(Google|GitHub)/$0Router.swift` files
-public protocol FederatedServiceRouter {
+public protocol FederatedServiceRouter : class {
     
     /// A class that gets the client ID and secret from environment variables.
     var tokens: FederatedServiceTokens { get }
@@ -17,7 +17,7 @@ public protocol FederatedServiceRouter {
     var scope: [String] { get set }
     
     /// The URL (or URI) for that route that the provider will fire when the user authenticates with the OAuth provider.
-    var callbackURL: String { get }
+    var callbackURL: String { get set }
     
     /// The URL on the app that will redirect to the `authURL` to get the access token from the OAuth provider.
     var accessTokenURL: String { get }
@@ -73,6 +73,21 @@ extension FederatedServiceRouter {
             }
             return try authenticateCallback(req).map(to: Response.self) { _ in
                 return redirect
+            }
+        }
+    }
+
+    public func upgradeRelativeCallbackURL(from request: Request) {
+        // If the OAuth provider needs an absolute callback URL and we have a relative URL,
+        // concate it with the scheme and authority of the Referer of the request.
+        if callbackURL.range(of: "://") == nil,
+            let referer = request.http.headers.firstValue(name: .referer)
+        {
+            // Strip referer path if present
+            if let path = referer.range(of: "/", range: String.Index(encodedOffset: 8)..<referer.endIndex) {
+                callbackURL = String(referer[...path.lowerBound])+callbackURL
+            } else {
+                callbackURL = referer + callbackURL
             }
         }
     }

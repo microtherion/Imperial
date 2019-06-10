@@ -5,10 +5,11 @@ public class FacebookRouter: FederatedServiceRouter {
     public let tokens: FederatedServiceTokens
     public let callbackCompletion: (Request, String) throws -> (Future<ResponseEncodable>)
     public var scope: [String] = []
-    public let callbackURL: String
+    public var callbackURL: String
     public var accessTokenURL: String = "https://graph.facebook.com/v3.2/oauth/access_token"
     
     public func authURL(_ request: Request) throws -> String {
+        upgradeRelativeCallbackURL(from: request)
         return "https://www.facebook.com/v3.2/dialog/oauth?" +
             "client_id=\(self.tokens.clientID)" +
             "&redirect_uri=\(self.callbackURL)" +

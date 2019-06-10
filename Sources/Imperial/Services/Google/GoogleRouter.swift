@@ -5,7 +5,7 @@ public class GoogleRouter: FederatedServiceRouter {
     public let tokens: FederatedServiceTokens
     public let callbackCompletion: (Request, String)throws -> (Future<ResponseEncodable>)
     public var scope: [String] = []
-    public let callbackURL: String
+    public var callbackURL: String
     public let accessTokenURL: String = "https://www.googleapis.com/oauth2/v4/token"
     
     public required init(callback: String, completion: @escaping (Request, String)throws -> (Future<ResponseEncodable>)) throws {
@@ -15,6 +15,7 @@ public class GoogleRouter: FederatedServiceRouter {
     }
 
     public func authURL(_ request: Request) throws -> String {
+        upgradeRelativeCallbackURL(from: request)
         return "https://accounts.google.com/o/oauth2/auth?" +
             "client_id=\(self.tokens.clientID)&" +
             "redirect_uri=\(self.callbackURL)&" +

@@ -40,6 +40,9 @@ public class DropboxRouter: FederatedServiceRouter {
             request.http.url = url
             return try request.make(Client.self).send(request)
         }.flatMap(to: String.self) { response in
+            // Dropbox returns a Content-Type of "text/javascript", which Vapor has difficulties dealing with
+            // even though it's just regular JSON
+            response.http.headers.replaceOrAdd(name: "Content-Type", value: "application/json")
             return response.content.get(String.self, at: ["access_token"])
         }
     }

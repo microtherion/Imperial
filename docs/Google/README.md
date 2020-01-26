@@ -49,7 +49,7 @@ public func configure(
 	// Other Middleware...
     middlewares.use(SessionsMiddleware.self)
     services.register(middlewares)
-    
+
 	//...
 }
 
@@ -63,7 +63,7 @@ Now, when you run your app and you are using `FluentSQLite`, you will probably g
 
 Just pick one of the listed suggestions and place it at the top of your `configure` function. If you want your data to persist across server reboots, use `config.prefer(FluentCache<SQLiteDatabase>.self, for: KeyedCache.self)`
 
-Imperial uses environment variables to access the client ID and secret to authenticate with Google. To allow Imperial to access these tokens, you will create these variables, called `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, with the client ID and secret assigned to them. Imperial can then access these vars and use there values to authenticate with Google.
+Imperial uses environment variables to access the client ID and secret to authenticate with Google. To allow Imperial to access these tokens, you will create these variables, called `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, with the client ID and secret assigned to them. Imperial can then access these vars and use their values to authenticate with Google.
 
 Now, all we need to do is register the Google service in your main router method, like this:
 

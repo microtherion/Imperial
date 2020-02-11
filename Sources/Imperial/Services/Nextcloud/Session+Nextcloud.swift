@@ -13,7 +13,7 @@ extension Session {
         return domain
     }
     
-    func setCloudDomain(_ domain: String) {
+    public func setCloudDomain(_ domain: String) {
         self[Keys.cloudDomain] = domain
     }
 
@@ -40,7 +40,7 @@ extension Session {
         return uid
     }
 
-    func setNextcloudUserID(_ uid: String) {
+    public func setNextcloudUserID(_ uid: String) {
         self[Keys.nextcloudUserID] = uid
     }
 

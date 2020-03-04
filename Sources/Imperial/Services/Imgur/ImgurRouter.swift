@@ -6,19 +6,18 @@ public class ImgurRouter: FederatedServiceRouter {
     public let callbackCompletion: (Request, String)throws -> (Future<ResponseEncodable>)
     public var scope: [String] = []
     public var callbackURL: String
-    public let accessTokenURL: String = "https://api.dropboxapi.com/oauth2/token"
+    public let accessTokenURL: String = "https://api.imgur.com/oauth2/token"
     
     public required init(callback: String, completion: @escaping (Request, String)throws -> (Future<ResponseEncodable>)) throws {
-        self.tokens = try DropboxAuth()
+        self.tokens = try ImgurAuth()
         self.callbackURL = callback
         self.callbackCompletion = completion
     }
 
     public func authURL(_ request: Request) throws -> String {
-        upgradeRelativeCallbackURL(from: request)
-        return "https://api.imgur.com/oauth2/authorizes?" +
+        return "https://api.imgur.com/oauth2/authorize?" +
             "client_id=\(self.tokens.clientID)&" +
-            "response_type=token"
+            "response_type=code"
     }
     
     public func fetchToken(from request: Request)throws -> Future<String> {
@@ -30,8 +29,8 @@ public class ImgurRouter: FederatedServiceRouter {
         } else {
             throw Abort(.badRequest, reason: "Missing 'code' key in URL query")
         }
-        
-        let body = ImgurCallbackBody(code: code, clientId: self.tokens.clientID, clientSecret: self.tokens.clientSecret, redirectURI: self.callbackURL)
+
+        let body = ImgurCallbackBody(code: code, clientId: self.tokens.clientID, clientSecret: self.tokens.clientSecret)
         return try body.encode(using: request).flatMap(to: Response.self) { request in
             guard let url = URL(string: self.accessTokenURL) else {
                 throw Abort(.internalServerError, reason: "Unable to convert String '\(self.accessTokenURL)' to URL")
@@ -40,10 +39,14 @@ public class ImgurRouter: FederatedServiceRouter {
             request.http.url = url
             return try request.make(Client.self).send(request)
         }.flatMap(to: String.self) { response in
-            // Dropbox returns a Content-Type of "text/javascript", which Vapor has difficulties dealing with
-            // even though it's just regular JSON
-            response.http.headers.replaceOrAdd(name: "Content-Type", value: "application/json")
-            return response.content.get(String.self, at: ["access_token"])
+            let session = try request.session()
+
+            return response.content.get(String.self, at: ["refresh_token"])
+            .flatMap { refresh in
+                session.setRefreshToken(refresh)
+            
+                return response.content.get(String.self, at: ["access_token"])
+            }
         }
     }
     
@@ -52,7 +55,7 @@ public class ImgurRouter: FederatedServiceRouter {
             let session = try request.session()
             
             session.setAccessToken(accessToken)
-            try session.set("access_token_service", to: OAuthService.dropbox)
+            try session.set("access_token_service", to: OAuthService.imgur)
             
             return try self.callbackCompletion(request, accessToken)
         }.flatMap(to: Response.self) { response in

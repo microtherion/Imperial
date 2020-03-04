@@ -1,6 +1,6 @@
 extension OAuthService {
-    public static let dropbox = OAuthService.init(
-        name: "dropbox",
+    public static let imgur = OAuthService.init(
+        name: "imgur",
         endpoints: [:]
     )
 }

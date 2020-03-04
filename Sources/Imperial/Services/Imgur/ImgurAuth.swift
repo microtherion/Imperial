@@ -10,7 +10,7 @@ public class ImgurAuth: FederatedServiceTokens {
         let idError = ImperialError.missingEnvVar(ImgurAuth.idEnvKey)
         let secretError = ImperialError.missingEnvVar(ImgurAuth.secretEnvKey)
         
-        self.clientID = try Environment.get(DropboxAuth.idEnvKey).value(or: idError)
-        self.clientSecret = try Environment.get(DropboxAuth.secretEnvKey).value(or: secretError)
+        self.clientID = try Environment.get(ImgurAuth.idEnvKey).value(or: idError)
+        self.clientSecret = try Environment.get(ImgurAuth.secretEnvKey).value(or: secretError)
     }
 }

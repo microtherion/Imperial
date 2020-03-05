@@ -1,9 +1,11 @@
 import Vapor
 
 public class Imgur: FederatedService {
+    public static var instance: Imgur!
+
     public var tokens: FederatedServiceTokens
     public var router: FederatedServiceRouter
-    
+
     @discardableResult
     public required init(
         router: Router,
@@ -15,10 +17,11 @@ public class Imgur: FederatedService {
     ) throws {
         self.router = try ImgurRouter(callback: callback, completion: completion)
         self.tokens = self.router.tokens
-        
+
         self.router.scope = scope
         try self.router.configureRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: router)
         
         OAuthService.register(.imgur)
+        Imgur.instance = self
     }
 }

@@ -29,13 +29,18 @@ struct Auth4sharedInitiateBody: Auth4sharedStampable {
     }
 }
 
+struct Auth4sharedTokenResponse : Decodable {
+    let oauth_token: String
+    let oauth_token_secret: String
+}
+
 public protocol Auth4sharedSignature {
     var oauth_token: String { get set}
     var oauth_consumer_key: String { get set }
     var oauth_signature: String { get set }
 }
 
-public struct Auth4sharedSignatureParam : Auth4sharedSignature {
+public struct Auth4sharedSignatureParam : Auth4sharedSignature, Codable {
     public var oauth_token: String
     public var oauth_consumer_key: String
     public var oauth_signature: String

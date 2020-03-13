@@ -24,12 +24,14 @@ public class Auth4sharedRouter: FederatedServiceRouter {
                     oauth_signature: tokens.clientSecret+"&"))
         }.flatMap { response in
             let session = try request.session()
-            let token   = response.content.get(String.self, at: ["oauth_token"])
-            let secret  = response.content.get(String.self, at: ["oauth_token_secret"])
-            return map(token, secret) { token, secret in
-                session.setTokenSecret(secret)
-
-                return token
+            return try response.content.decode(Auth4sharedTokenResponse.self)
+            .map { token in
+                try session.set(Session.Keys.refresh,
+                    to: Auth4sharedSignatureParam(
+                        oauth_token: token.oauth_token,
+                        oauth_consumer_key: self.tokens.clientID,
+                        oauth_signature: self.tokens.clientSecret+"&"+token.oauth_token_secret))
+                return token.oauth_token
             }
         }
     }
@@ -73,25 +75,23 @@ public class Auth4sharedRouter: FederatedServiceRouter {
         }
 
         let session = try request.session()
-        let body = try Auth4sharedCallbackBody(signature:
-            Auth4sharedSignatureParam(
-                oauth_token: code,
-                oauth_consumer_key: tokens.clientID,
-                oauth_signature: tokens.clientSecret+"&"+session.tokenSecret()))
-        struct Token : Decodable {
-            let oauth_token: String
-            let oauth_token_secret: String
-        }
+        var signature = try session.get(Session.Keys.refresh, as: Auth4sharedSignatureParam.self)
+        signature.oauth_token = code
+        try session.set(Session.Keys.refresh, to: signature)
+
+        let body = Auth4sharedCallbackBody(signature: signature)
         return try request
         .client()
         .get(self.accessTokenURL) { request in
             try request.query.encode(body)
         }.flatMap { response in
-            return try response.content.decode(Token.self)
+            return try response.content.decode(Auth4sharedTokenResponse.self.self)
         }.map { token in
-            session.setTokenSecret(token.oauth_token_secret)
-
-            return token.oauth_token
+            return try String(data: JSONEncoder().encode(Auth4sharedSignatureParam(
+                oauth_token: token.oauth_token,
+                oauth_consumer_key: self.tokens.clientID,
+                oauth_signature: self.tokens.clientSecret+"&"+token.oauth_token_secret)),
+                              encoding: .utf8) ?? ""
         }
     }
 

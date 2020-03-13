@@ -22,16 +22,6 @@ extension Request {
     public func refreshToken()throws -> String {
         return try self.session().refreshToken()
     }
-
-    /// Gets the token secret (for Oauth 1.x)  from the current session.
-    ///
-    /// - Returns: The token secret in the current session.
-    /// - Throws:
-    ///   - `Abort.unauthorized` if no token secret exists.
-    ///   - `SessionsError.notConfigured` if session middlware is not configured yet.
-    public func tokenSecret()throws -> String {
-        return try self.session().tokenSecret()
-    }
 }
 
 extension Session {
@@ -40,7 +30,6 @@ extension Session {
     enum Keys {
         static let token = "access_token"
         static let refresh = "refresh_token"
-        static let secret = "token_secret"
     }
 
     /// Gets the access token from the session.
@@ -81,28 +70,6 @@ extension Session {
     /// - Parameter token: the refresh token to store on the session
     public func setRefreshToken(_ token: String) {
         self[Keys.refresh] = token
-    }
-
-    /// Gets the token secret (for Oauth 1.x) from the session.
-    ///
-    /// - Returns: The token secret stored with the `token_secret` key.
-    /// - Throws: `Abort.unauthorized` if no refresh token exists.
-    public func tokenSecret()throws -> String {
-        guard let secret = self[Keys.secret] else {
-            if self[Keys.token] == nil {
-                throw Abort(.unauthorized, reason: "User currently not authenticated")
-            } else {
-                throw Abort(.methodNotAllowed, reason: "OAuth provider '\(self["access_token_service"] ?? "")' uses no token secrets")
-            }
-        }
-        return secret
-    }
-
-    /// Sets the token secret on the session.
-    ///
-    /// - Parameter token: the refresh token to store on the session
-    public func setTokenSecret(_ secret: String) {
-        self[Keys.secret] = secret
     }
 
     /// Gets an object stored in a session with JSON as a given type.

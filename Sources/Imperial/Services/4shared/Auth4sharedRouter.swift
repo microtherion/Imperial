@@ -77,7 +77,7 @@ public class Auth4sharedRouter: FederatedServiceRouter {
         let session = try request.session()
         var signature = try session.get(Session.Keys.refresh, as: Auth4sharedSignatureParam.self)
         signature.oauth_token = code
-        try session.set(Session.Keys.refresh, to: signature)
+        session[Session.Keys.refresh] = nil
 
         let body = Auth4sharedCallbackBody(signature: signature)
         return try request

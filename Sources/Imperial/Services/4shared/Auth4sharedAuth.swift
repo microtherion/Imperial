@@ -2,8 +2,8 @@ import Vapor
 
 // 4shared clients don't need registration
 public class Auth4sharedAuth: FederatedServiceTokens {
-    public static var idEnvKey: String = "4SHARED_CLIENT_ID"
-    public static var secretEnvKey: String = "4SHARED_CLIENT_SECRET"
+    public static var idEnvKey: String = "AUTH4SHARED_CLIENT_ID"
+    public static var secretEnvKey: String = "AUTH4SHARED_CLIENT_SECRET"
     public var clientID: String = ""
     public var clientSecret: String = ""
 

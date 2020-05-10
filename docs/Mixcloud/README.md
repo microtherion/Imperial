@@ -1,21 +1,13 @@
-# Federated Login with Google
+# Federated Login with Mixcloud
 
-We need to start by creating a client ID and secret so Google can identify us. Go to the [Credentials tab][1] of the Google Developer's Console on the API page.
+Start by going to the [Mixcloud Create new app page](https://www.mixcloud.com/developers/create/). Fill in the your app information (as opposed to most other services, you do *not* have to register a callback URI).
 
-Select 'Create credentials' > 'OAuth client ID':
-
-![Create Credentials](https://github.com/vapor-community/Imperial/blob/master/docs/Google/create-oauth-credentials.png?raw=true)
-
-Select 'Web application'. The name that you enter should be the name of your project. Under the 'Restrictions' section, in 'Authorized redirect URIs', you will need to add a URI for Google to redirect to after the authentication is complete. If you are developing locally, it will be `http://localhost:8080/...` or `https...` if you have configured SSL:
-
-![Create Credentials](https://github.com/vapor-community/Imperial/blob/master/docs/Google/configure-app-creds.png?raw=true)
-
-Now that we have the necessary information for Google, we will setup Imperial with our application.
+Now that we have an OAuth application registered with Mixcloud, we can add Imperial to our project (We will not be going over how to create the project, as I will assume that you have already done that).
 
 Add the following line of code to your `dependencies` array in your package manifest file:
 
 ```swift
-.package(url: "https://github.com/vapor-community/Imperial.git", from: "0.7.0")
+.package(url: "https://github.com/vapor-community/Imperial.git", from: "0.5.3")
 ```
 
 **Note:** There might be a later version of the package available, in which case you will want to use that version.
@@ -63,12 +55,12 @@ Now, when you run your app and you are using `FluentSQLite`, you will probably g
 
 Just pick one of the listed suggestions and place it at the top of your `configure` function. If you want your data to persist across server reboots, use `config.prefer(FluentCache<SQLiteDatabase>.self, for: KeyedCache.self)`
 
-Imperial uses environment variables to access the client ID and secret to authenticate with Google. To allow Imperial to access these tokens, you will create these variables, called `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, with the client ID and secret assigned to them. Imperial can then access these vars and use their values to authenticate with Google.
+Imperial uses environment variables to access the client ID and secret to authenticate with Mixcloud. To allow Imperial to access these tokens, you will create these variables, called `MIXCLOUD_CLIENT_ID` and `MIXCLOUD_CLIENT_SECRET`, with the App key and App secret assigned to them. Imperial can then access these vars and use their values to authenticate with Mixcloud.
 
-Now, all we need to do is register the Google service in your main router method, like this:
+Now, all we need to do is register the Mixcloud service in your main router method, like this:
 
 ```swift
-try router.oAuth(from: Google.self, authenticate: "google", callback: "http://localhost:8080/google-complete") { (request, token) in
+try router.oAuth(from: Mixcloud.self, authenticate: "mixcloud-login", callback: "http://localhost:8080/mixcloud-auth-complete") { (request, token) in
     print(token)
     return Future(request.redirect(to: "/"))
 }
@@ -77,14 +69,10 @@ try router.oAuth(from: Google.self, authenticate: "google", callback: "http://lo
 If you just want to redirect, without doing anything else in the callback, you can use the helper `Route.oAuth` method that takes in a redirect string:
 
 ```swift
-try router.oAuth(from: Google.self, authenticate: "google", callback: "http://localhost:8080/google-complete", redirect: "/")
+try router.oAuth(from: Mixcloud.self, authenticate: "mixcloud-login", callback: "http://localhost:8080/mixcloud-auth-complete", redirect: "/")
 ```
 
-The `callback` argument is the path you will go to when you want to authenticate the user. The `callback` argument has to be the same path that you entered when you registered your application on Google:
-
-![The callback path for Google OAuth](https://github.com/vapor-community/Imperial/blob/master/docs/Google/callback-uri.png?raw=true)
-
-The completion handler is fired when the callback route is called by the OAuth provider. The access token is passed in and a response is returned.
+The `authenticate` argument is the path you will go to when you want to authenticate the user. The `callback` is an arbitrary route you want to register. The completion handler is fired when the callback route is called by the OAuth provider. The access token is passed in and a response is returned.
 
 If you ever want to get the `access_token` in a route, you can use a helper method for the `Request` type that comes with Imperial:
 
@@ -109,5 +97,3 @@ The `ImperialMiddleware` by default passes the errors it finds onto `ErrorMiddle
 ```swift
 let protected = router.grouped(ImperialMiddleware(redirect: "/"))
 ```
-
-[1]: https://console.developers.google.com/apis/credentials

@@ -167,7 +167,7 @@ the parent route.</p>
     <span class="n">authenticate</span> <span class="nv">authUrl</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
     <span class="nv">callback</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
     <span class="nv">scope</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Request</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span><span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="kt">ResponseEncodable</span><span class="o">&gt;</span>
+    <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Request</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span><span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">EventLoopFuture</span><span class="o">&lt;</span><span class="kt">ResponseEncodable</span><span class="o">&gt;</span>
 <span class="p">)</span><span class="k">throws</span> <span class="k">where</span> <span class="kt">OAuthProvider</span><span class="p">:</span> <span class="kt"><a href="../Protocols/FederatedService.html">FederatedService</a></span></code></pre>
 
                         </div>

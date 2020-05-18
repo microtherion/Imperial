@@ -122,7 +122,7 @@ struct ImperialController: RouteCollection {
                          scope: [], completion: processFacebookLogin)
     }
 
-    func processFacebookLogin(request: Request, token: String) throws -> Future<ResponseEncodable> {
+    func processFacebookLogin(request: Request, token: String) throws -> EventLoopFuture<ResponseEncodable> {
         return try Facebook.getUserInfo(on: request).flatMap(to: ResponseEncodable.self) { userInfo in
             return User.query(on: request).filter(\.username == userInfo.id).first()
                                           .flatMap(to: ResponseEncodable.self) { foundUser in
@@ -134,7 +134,7 @@ struct ImperialController: RouteCollection {
         }
     }
 
-    private func buildAndSaveNewUser(request: Request, userInfo: FacebookUserInfo) -> Future<ResponseEncodable> {
+    private func buildAndSaveNewUser(request: Request, userInfo: FacebookUserInfo) -> EventLoopFuture<ResponseEncodable> {
         let user = User(name: userInfo.name, username: userInfo.id, password: UUID().uuidString, email: userInfo.email)
         return user.save(on: request).map(to: ResponseEncodable.self) { user in
             try request.authenticateSession(user)
@@ -142,7 +142,7 @@ struct ImperialController: RouteCollection {
         }
     }
 
-    private func AuthenticateExistingUser(request: Request, user: User) -> Future<ResponseEncodable> {
+    private func AuthenticateExistingUser(request: Request, user: User) -> EventLoopFuture<ResponseEncodable> {
         return user.save(on: request).map(to: ResponseEncodable.self) { user in
             try request.authenticateSession(user)
             return request.redirect(to: "users/\(user.id!)")
@@ -161,7 +161,7 @@ struct FacebookUserInfo: Content {
 }
 
 extension Facebook {
-    static func getUserInfo(on request: Request) throws -> Future<FacebookUserInfo> {
+    static func getUserInfo(on request: Request) throws -> EventLoopFuture<FacebookUserInfo> {
         let token = try request.accessToken()
         let facebookUserAPIURL = "https://graph.facebook.com/v3.2/me?fields=id,name,email&access_token=\(token)"
         return try request.client().get(facebookUserAPIURL).map(to: FacebookUserInfo.self) { response in

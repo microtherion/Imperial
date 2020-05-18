@@ -18,8 +18,8 @@ extension Request {
     /// - Throws:
     ///   - `Abort.unauthorized` if no refresh token exists.
     ///   - `SessionsError.notConfigured` if session middlware is not configured yet.
-    public func refreshToken()throws -> String {
-        return try self.session().refreshToken()
+    public func refreshToken() throws -> String {
+        return try session.refreshToken()
     }
 }
 
@@ -35,8 +35,8 @@ extension Session {
     ///
     /// - Returns: The access token stored with the `access_token` key.
     /// - Throws: `Abort.unauthorized` if no access token exists.
-    public func accessToken()throws -> String {
-        guard let token = self[Keys.token] else {
+    public func accessToken() throws -> String {
+        guard let token = try? get(Keys.token, as: String.self) else {
             throw Abort(.unauthorized, reason: "User currently not authenticated")
         }
         return token
@@ -45,23 +45,21 @@ extension Session {
     /// Sets the access token on the session.
     ///
     /// - Parameter token: the access token to store on the session
-    public func setAccessToken(_ token: String) throws {
-        try set(Keys.token, to: token)
+    public func setAccessToken<T>(_ data: T) throws where T: Codable {
+        try set(Keys.token, to: data)
     }
 
     /// Gets the refresh token from the session.
     ///
     /// - Returns: The refresh token stored with the `refresh_token` key.
     /// - Throws: `Abort.unauthorized` if no refresh token exists.
-    public func refreshToken()throws -> String {
-        guard let token = self[Keys.refresh] else {
-            if self[Keys.token] == nil {
+    public func refreshToken() throws -> String {
+        guard let token = try? get(Keys.refresh, as: String.self) else {
+            if data[Keys.token] == nil {
                 throw Abort(.unauthorized, reason: "User currently not authenticated")
             } else {
-                let oauthData = self["access_token_service"]?.data(using: .utf8) ?? Data()
-                let oauth = try? JSONSerialization.jsonObject(with: oauthData, options: [])
-                let oauthName = (oauth as? NSDictionary)?["name"] ?? "???"
-                throw Abort(.methodNotAllowed, reason: "OAuth provider '\(oauthName)' uses no refresh tokens")
+                let oauth = try get("access_token_service", as: OAuthService.self)
+                throw Abort(.methodNotAllowed, reason: "OAuth provider '\(oauth.name)' uses no refresh tokens")
             }
         }
         return token
@@ -70,8 +68,8 @@ extension Session {
     /// Sets the refresh token on the session.
     ///
     /// - Parameter token: the refresh token to store on the session
-    public func setRefreshToken(_ token: String) {
-        self[Keys.refresh] = token
+    public func setRefreshToken<T>(_ data: T) throws where T: Codable {
+        try set(Keys.refresh, to: data)
     }
 
     /// Gets an object stored in a session with JSON as a given type.

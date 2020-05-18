@@ -6,7 +6,7 @@ struct MixcloudCallbackBody: Content {
     let clientSecret: String
     let redirectURI: String
 
-    static var defaultContentType: MediaType = .urlEncodedForm
+    static var defaultContentType: HTTPMediaType = .urlEncodedForm
 
     enum CodingKeys: String, CodingKey {
         case code = "code"

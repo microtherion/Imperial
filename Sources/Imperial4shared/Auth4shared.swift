@@ -1,3 +1,4 @@
+@_exported import ImperialCore
 import Vapor
 
 public class Auth4shared: FederatedService {
@@ -6,21 +7,19 @@ public class Auth4shared: FederatedService {
 
     @discardableResult
     public required init(
-        router: Router,
+        routes: RoutesBuilder,
         authenticate: String,
-        authenticateCallback: ((Request)throws -> (Future<Void>))?,
+        authenticateCallback: ((Request)throws -> (EventLoopFuture<Void>))?,
         callback: String,
         scope: [String] = [],
-        completion: @escaping (Request, String)throws -> (Future<ResponseEncodable>)
+        completion: @escaping (Request, String)throws -> (EventLoopFuture<ResponseEncodable>)
     ) throws {
-        // configureRoutes is defined in an extension of FederatedServiceRouter, so we cannot override
-        // We dispatch to the static type instead to achieve the same effect.
         let myRouter = try Auth4sharedRouter(callback: callback, completion: completion)
         self.router  = myRouter
         self.tokens  = myRouter.tokens
 
         myRouter.scope = scope
-        try myRouter.configure4sharedRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: router)
+        try myRouter.configureRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: routes)
 
         OAuthService.register(.auth4shared)
     }

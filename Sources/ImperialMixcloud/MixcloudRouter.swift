@@ -3,12 +3,12 @@ import Foundation
 
 public class MixcloudRouter: FederatedServiceRouter {
     public let tokens: FederatedServiceTokens
-    public let callbackCompletion: (Request, String)throws -> (Future<ResponseEncodable>)
+    public let callbackCompletion: (Request, String)throws -> (EventLoopFuture<ResponseEncodable>)
     public var scope: [String] = []
     public var callbackURL: String
     public let accessTokenURL: String = "https://www.mixcloud.com/oauth/access_token"
 
-    public required init(callback: String, completion: @escaping (Request, String)throws -> (Future<ResponseEncodable>)) throws {
+    public required init(callback: String, completion: @escaping (Request, String)throws -> (EventLoopFuture<ResponseEncodable>)) throws {
         self.tokens = try MixcloudAuth()
         self.callbackURL = callback
         self.callbackCompletion = completion
@@ -20,7 +20,7 @@ public class MixcloudRouter: FederatedServiceRouter {
             "redirect_uri=\(self.callbackURL)"
     }
 
-    public func fetchToken(from request: Request)throws -> Future<String> {
+    public func fetchToken(from request: Request)throws -> EventLoopFuture<String> {
         let code: String
         if let queryCode: String = try request.query.get(at: "code") {
             code = queryCode
@@ -31,25 +31,29 @@ public class MixcloudRouter: FederatedServiceRouter {
         }
 
         let body = MixcloudCallbackBody(code: code, clientId: self.tokens.clientID, clientSecret: self.tokens.clientSecret, redirectURI: self.callbackURL)
-        return try request
-        .client()
-        .get(self.accessTokenURL) { request in
-            try request.query.encode(body)
-        }.flatMap(to: String.self) { response in
-            return response.content.get(String.self, at: ["access_token"])
+        let url  = URI(string: self.accessTokenURL)
+        return request.client.get(url) { client in
+            try client.query.encode(body)
+        }.flatMapThrowing { response in
+            return try response.content.get(String.self, at: ["access_token"])
         }
     }
 
-    public func callback(_ request: Request)throws -> Future<Response> {
-        return try self.fetchToken(from: request).flatMap(to: ResponseEncodable.self) { accessToken in
-            let session = try request.session()
+    public func callback(_ request: Request)throws -> EventLoopFuture<Response> {
+        return try self.fetchToken(from: request).flatMap { accessToken in
+            do {
+                let session = request.session
 
-            session.setAccessToken(accessToken)
-            try session.set("access_token_service", to: OAuthService.mixcloud)
+                try session.setAccessToken(accessToken)
+                try session.set("access_token_service", to: OAuthService.mixcloud)
 
-            return try self.callbackCompletion(request, accessToken)
-        }.flatMap(to: Response.self) { response in
-            return try response.encode(for: request)
+                return try self.callbackCompletion(request, accessToken)
+                .flatMap { response in
+                    return response.encodeResponse(for: request)
+                }
+            } catch {
+                return request.eventLoop.makeFailedFuture(error)
+            }
         }
     }
 }

@@ -79,7 +79,7 @@ public class Auth4sharedRouter: FederatedServiceRouter {
         request.session.data["refresh_token"] = nil
 
         let body = Auth4sharedCallbackBody(signature: signature)
-        return try request.client.get(URI(string: self.accessTokenURL)) { request in
+        return request.client.get(URI(string: self.accessTokenURL)) { request in
             try request.query.encode(body)
         }.flatMapThrowing { response in
             return try response.content.decode(Auth4sharedTokenResponse.self.self)

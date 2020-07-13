@@ -52,7 +52,7 @@ public class DeviantArtRouter: FederatedServiceRouter {
     public func callback(_ request: Request)throws -> EventLoopFuture<Response> {
         return try self.fetchToken(from: request).flatMap { accessToken in
             do {
-                let session = try request.session
+                let session = request.session
             
                 try session.setAccessToken(accessToken)
                 try session.set("access_token_service", to: OAuthService.deviantart)

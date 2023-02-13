@@ -18,7 +18,7 @@ public class DropboxRouter: FederatedServiceRouter {
         return "https://www.dropbox.com/oauth2/authorize?" +
             "client_id=\(self.tokens.clientID)&" +
             "redirect_uri=\(self.callbackURL)&" +
-            "response_type=code"
+            "response_type=code&token_access_type=offline"
     }
     
     public func fetchToken(from request: Request)throws -> EventLoopFuture<String> {
@@ -40,6 +40,9 @@ public class DropboxRouter: FederatedServiceRouter {
             // even though it's just regular JSON
             var response = rawResponse
             response.headers.replaceOrAdd(name: "Content-Type", value: "application/json")
+            let refresh = try response.content.get(String.self, at: ["refresh_token"])
+            try request.session.setRefreshToken(refresh)
+
             return try response.content.get(String.self, at: ["access_token"])
         }
     }

@@ -2,6 +2,8 @@
 import Vapor
 
 public class Dropbox: FederatedService {
+    public static var instance: Dropbox!
+
     public var tokens: FederatedServiceTokens
     public var router: FederatedServiceRouter
     
@@ -21,5 +23,7 @@ public class Dropbox: FederatedService {
         try self.router.configureRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: routes)
         
         OAuthService.register(.dropbox)
+
+        Dropbox.instance = self
     }
 }

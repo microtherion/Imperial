@@ -57,7 +57,7 @@ extension Session {
     /// Sets the refresh token on the session.
     ///
     /// - Parameter token: the refresh token to store on the session
-    public func setRefreshToken(_ token: String) {
+    public func setRefreshToken(_ token: String?) {
         self.data[Keys.refresh] = token
     }
 

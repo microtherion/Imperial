@@ -40,3 +40,4 @@ public protocol FederatedServiceTokens: Sendable {
     /// Gets the client ID and secret from the environment variables and store them.
     init() throws
 }
+

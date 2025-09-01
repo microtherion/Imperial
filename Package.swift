@@ -12,6 +12,7 @@ let package = Package(
     products: [
         .library(name: "ImperialCore", targets: ["ImperialCore"]),
         .library(name: "ImperialAuth0", targets: ["ImperialCore", "ImperialAuth0"]),
+        .library(name: "ImperialBox", targets: ["ImperialCore", "ImperialBox"]),
         .library(name: "ImperialDeviantArt", targets: ["ImperialCore", "ImperialDeviantArt"]),
         .library(name: "ImperialDiscord", targets: ["ImperialCore", "ImperialDiscord"]),
         .library(name: "ImperialDropbox", targets: ["ImperialCore", "ImperialDropbox"]),
@@ -30,6 +31,7 @@ let package = Package(
             targets: [
                 "ImperialCore",
                 "ImperialAuth0",
+                "ImperialBox",
                 "ImperialDeviantArt",
                 "ImperialDiscord",
                 "ImperialDropbox",
@@ -60,6 +62,7 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
         .target(name: "ImperialAuth0", dependencies: ["ImperialCore"], swiftSettings: swiftSettings),
+        .target(name: "ImperialBox", dependencies: ["ImperialCore"], swiftSettings: swiftSettings),
         .target(name: "ImperialDeviantArt", dependencies: ["ImperialCore"], swiftSettings: swiftSettings),
         .target(name: "ImperialDiscord", dependencies: ["ImperialCore"], swiftSettings: swiftSettings),
         .target(name: "ImperialDropbox", dependencies: ["ImperialCore"], swiftSettings: swiftSettings),
@@ -78,6 +81,7 @@ let package = Package(
             dependencies: [
                 .target(name: "ImperialCore"),
                 .target(name: "ImperialAuth0"),
+                .target(name: "ImperialBox"),
                 .target(name: "ImperialDeviantArt"),
                 .target(name: "ImperialDiscord"),
                 .target(name: "ImperialDropbox"),

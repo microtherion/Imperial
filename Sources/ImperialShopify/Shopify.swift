@@ -2,7 +2,7 @@
 import Vapor
 
 public struct Shopify: FederatedService {
-    public let router : any FederatedServiceRouter
+    public let router: any FederatedServiceRouter
 
     @discardableResult
     public init(
@@ -15,9 +15,9 @@ public struct Shopify: FederatedService {
     ) throws {
         router = try ShopifyRouter(callback: callback, scope: scope, completion: completion)
         try router.configureRoutes(
-                withAuthURL: authenticate,
-                authenticateCallback: authenticateCallback,
-                on: routes
-            )
+            withAuthURL: authenticate,
+            authenticateCallback: authenticateCallback,
+            on: routes
+        )
     }
 }

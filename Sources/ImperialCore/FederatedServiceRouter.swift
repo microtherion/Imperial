@@ -136,7 +136,7 @@ extension FederatedServiceRouter {
         completion: @escaping @Sendable (Request, String) async throws -> Void
     ) async throws {
         let body = refreshBody(with: refreshToken)
-        let url = URI(string: accessTokenURL) // (sic!) Refresh tokens use accessTokenURL as well
+        let url = URI(string: accessTokenURL)  // (sic!) Refresh tokens use accessTokenURL as well
 
         let response = try await request.client.post(url) { post in try post.content.encode(body) }
 
@@ -170,8 +170,9 @@ extension FederatedServiceRouter {
     }
 
     public func refreshBody(with refreshToken: String) -> any Content {
-        FederatedServiceRefreshBody(refreshToken: refreshToken,
-                                    clientId: tokens.clientID, clientSecret: tokens.clientSecret)
+        FederatedServiceRefreshBody(
+            refreshToken: refreshToken,
+            clientId: tokens.clientID, clientSecret: tokens.clientSecret)
     }
 }
 

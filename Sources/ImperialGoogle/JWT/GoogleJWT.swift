@@ -1,7 +1,7 @@
 import Vapor
 
 public struct GoogleJWT: FederatedService {
-    public let router : any FederatedServiceRouter
+    public let router: any FederatedServiceRouter
 
     @discardableResult
     public init(

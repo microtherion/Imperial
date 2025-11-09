@@ -2,7 +2,7 @@
 import Vapor
 
 public struct Auth0: FederatedService {
-    public let router : any FederatedServiceRouter
+    public let router: any FederatedServiceRouter
 
     @discardableResult
     public init(

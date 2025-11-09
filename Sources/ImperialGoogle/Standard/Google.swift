@@ -2,7 +2,7 @@
 import Vapor
 
 public struct Google: FederatedService {
-    public let router : any FederatedServiceRouter
+    public let router: any FederatedServiceRouter
 
     @discardableResult
     public init(

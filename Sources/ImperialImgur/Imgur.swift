@@ -2,7 +2,7 @@
 import Vapor
 
 public struct Imgur: FederatedService {
-    public let router : any FederatedServiceRouter
+    public let router: any FederatedServiceRouter
 
     @discardableResult
     public init(

@@ -2,8 +2,6 @@
 import Vapor
 
 public struct Facebook: FederatedService {
-    public let router: any FederatedServiceRouter
-
     @discardableResult
     public init(
         routes: some RoutesBuilder,
@@ -13,7 +11,8 @@ public struct Facebook: FederatedService {
         scope: [String] = [],
         completion: @escaping @Sendable (Request, String) async throws -> some AsyncResponseEncodable
     ) throws {
-        router = try FacebookRouter(callback: callback, scope: scope, completion: completion)
+        // Facebook tokens are not refreshable
+        let router = try FacebookRouter(callback: callback, scope: scope, completion: completion)
         try router.configureRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: routes)
     }
 }

@@ -69,7 +69,7 @@ extension RoutesBuilder {
         callback: String,
         scope: [String] = [],
         completion: @escaping @Sendable (Request, String) async throws -> some AsyncResponseEncodable
-    ) throws -> any FederatedServiceRouter where OAuthProvider: FederatedService {
+    ) throws -> (any FederatedServiceRouter)? where OAuthProvider: FederatedService {
         return try OAuthProvider(
             routes: self,
             authenticate: authUrl,
@@ -97,7 +97,7 @@ extension RoutesBuilder {
         callback: String,
         scope: [String] = [],
         redirect redirectURL: String
-    ) throws -> any FederatedServiceRouter where OAuthProvider: FederatedService {
+    ) throws -> (any FederatedServiceRouter)? where OAuthProvider: FederatedService {
         return try self.oAuthRefreshable(
             from: OAuthProvider.self, authenticate: authUrl, authenticateCallback: authenticateCallback, callback: callback, scope: scope
         ) { (request, _) in

@@ -43,5 +43,9 @@ public protocol FederatedService: Sendable {
         completion: @escaping @Sendable (Request, String) async throws -> some AsyncResponseEncodable
     ) throws
 
-    var router: any FederatedServiceRouter { get }
+    var router: (any FederatedServiceRouter)? { get }
+}
+
+extension FederatedService {
+    public var router: (any FederatedServiceRouter)? { return nil }
 }

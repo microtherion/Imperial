@@ -2,7 +2,7 @@
 import Vapor
 
 public struct Google: FederatedService {
-    public let router: any FederatedServiceRouter
+    public let router: (any FederatedServiceRouter)?
 
     @discardableResult
     public init(
@@ -14,6 +14,6 @@ public struct Google: FederatedService {
         completion: @escaping @Sendable (Request, String) async throws -> some AsyncResponseEncodable
     ) throws {
         router = try GoogleRouter(callback: callback, scope: scope, completion: completion)
-        try router.configureRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: routes)
+        try router?.configureRoutes(withAuthURL: authenticate, authenticateCallback: authenticateCallback, on: routes)
     }
 }
